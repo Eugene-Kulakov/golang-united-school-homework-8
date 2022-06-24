@@ -53,16 +53,11 @@ func Perform(args Arguments, writer io.Writer) error {
 		if err != nil {
 			panic(err)
 		}
-		idExists := false
-		for index, storedItem := range data {
+		for _, storedItem := range data {
 			if storedItem.ID == newItem.ID {
-				data[index] = newItem
-				idExists = true
+				fmt.Errorf("Item with id %м already exists", newItem.ID)
 				break
 			}
-		}
-		if !idExists {
-			data = append(data, newItem)
 		}
 
 	case "list":
