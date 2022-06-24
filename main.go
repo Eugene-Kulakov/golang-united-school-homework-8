@@ -32,8 +32,19 @@ func Perform(args Arguments, writer io.Writer) error {
 	if err != nil {
 		panic(err)
 	}
+
+	defer func() {
+		err = file.Close()
+		if err != nil {
+			panic(err)
+		}
+	}()
+
 	var fileContent []byte
 	fileContent, err = ioutil.ReadAll(file)
+	if err != nil {
+		panic(err)
+	}
 
 	var data myData
 	if len(fileContent) != 0 {
@@ -42,6 +53,9 @@ func Perform(args Arguments, writer io.Writer) error {
 			panic(err)
 		}
 	}
+	defer func() {
+
+	}()
 
 	switch args["operation"] {
 	case "add":
@@ -55,7 +69,11 @@ func Perform(args Arguments, writer io.Writer) error {
 		}
 		for _, storedItem := range data {
 			if storedItem.ID == newItem.ID {
-				return fmt.Errorf("Item with id %v already exists", newItem.ID)
+				_, err = writer.Write([]byte(fmt.Sprintf("Item with id %v already exists", newItem.ID)))
+				if err != nil {
+					panic(err)
+				}
+				return nil
 			}
 		}
 
@@ -115,11 +133,6 @@ func Perform(args Arguments, writer io.Writer) error {
 	err = ioutil.WriteFile(args["fileName"], fileContent, 0755)
 	if err != nil {
 		log.Fatal(err)
-	}
-
-	err = file.Close()
-	if err != nil {
-		panic(err)
 	}
 
 	return nil
